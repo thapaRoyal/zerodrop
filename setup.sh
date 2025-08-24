@@ -80,3 +80,86 @@ check_requirements(){
 
     print_success "System requirements check completed."
 }
+
+setup_environment(){
+    print_status "Setting up environment configurations..."
+
+    if [ ! -f .env]; then
+    cp .env.example .env
+    print_success ".env file created from .env.example"
+    print_warning "Please edit .env with your configurations"
+    else
+    print_warning "Environment file already exists. Skipping .env creation"
+    fi
+}
+
+install_frontend(){
+    print_status "Installing frontned dependencies..."
+    cd frontend
+    npm install
+    cd ..
+    print_success "Frontend dependencies installed."
+}
+
+install_backend(){
+    print_status "Installing backend dependencies..."
+}
+
+build_application(){
+    print_status "Building the application..."
+
+    # Build frontend
+    print_status "Building frontend..."
+    cd frontend
+    npm run build
+    cd ..
+
+    print_success "Application built successfully"
+}
+
+setup_development(){
+    print_status "Setting up development environment..."
+
+    check_requirements
+    setup_environment
+    install_frontend
+    install_backend
+
+    print_status "Development environment setup complete."
+     echo ""
+    echo "To start development:"
+    echo "1. Terminal 1: make dev-frontend"
+    echo "2. Terminal 2: make dev-backend"
+    echo ""
+    echo "Frontend will be available at: http://localhost:3000"
+    echo "Backend will be available at: http://localhost:8080"
+
+}
+
+setup_production(){
+    print_status "Setting up production environment..."
+}
+
+
+main(){
+    case "${1:-dev}" in
+     "dev"|"development")
+     setup_development
+     ;;
+    "prod"|"production")
+     setup_production
+     ;;
+    "help"|"-h"|"--help")
+    echo "Usage: ${0} [dev|prod]"
+    echo " "
+    echo "Options:"
+    echo "  dev, development  - Setup development environment (default)"
+    echo "  prod, production  - Setup production environment with Docker"
+    echo "  help, -h, --help  - Show this help message"
+    ;;
+    *)
+        print_error "Invalid option. Use 'dev' for development setup or 'prod' for production setup."
+ esac   
+}
+
+main "$@"
