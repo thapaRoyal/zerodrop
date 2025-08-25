@@ -19,7 +19,7 @@ install-frontend:
 
 install-backend:
 	@echo "Installing backend dependencies..."
-	cd backend && go mod download
+	cd backend && go mod tidy
 
 # Development server
 dev-frontend:

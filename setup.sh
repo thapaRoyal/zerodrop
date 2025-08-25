@@ -103,6 +103,10 @@ install_frontend(){
 
 install_backend(){
     print_status "Installing backend dependencies..."
+    cd backend
+    go mod tidy
+    cd ..
+    print_success "Backend dependencies installed."
 }
 
 build_application(){
@@ -112,6 +116,11 @@ build_application(){
     print_status "Building frontend..."
     cd frontend
     npm run build
+    cd ..
+
+    print_status "Building backend..."
+    cd backend
+    go build -0 bin/server cmd/server/main.go
     cd ..
 
     print_success "Application built successfully"
@@ -126,18 +135,36 @@ setup_development(){
     install_backend
 
     print_status "Development environment setup complete."
-     echo ""
+    echo ""
     echo "To start development:"
     echo "1. Terminal 1: make dev-frontend"
     echo "2. Terminal 2: make dev-backend"
     echo ""
     echo "Frontend will be available at: http://localhost:3000"
-    echo "Backend will be available at: http://localhost:8080"
+    echo "Backend will be available at: http://localhost:8000"
 
 }
 
 setup_production(){
     print_status "Setting up production environment..."
+
+    check_requirements
+    setup_environment
+
+    if ! command -v docker &> /dev/null || ! command -v docker-compose &> /dev/null; then
+        print_error "Docker and Docker compose are required for production setup. Please install them and try again"
+        exit 1
+    fi
+
+    print_status "Building Docker images..."
+    docker-compose build
+
+    print_success "Production environment setup complete."
+    echo ""
+    echo "To start production:"
+    echo "make docker-run"
+    echo ""
+    echo "Application will be available at: http://localhost:8000"
 }
 
 
@@ -150,15 +177,18 @@ main(){
      setup_production
      ;;
     "help"|"-h"|"--help")
-    echo "Usage: ${0} [dev|prod]"
-    echo " "
-    echo "Options:"
-    echo "  dev, development  - Setup development environment (default)"
-    echo "  prod, production  - Setup production environment with Docker"
-    echo "  help, -h, --help  - Show this help message"
-    ;;
-    *)
-        print_error "Invalid option. Use 'dev' for development setup or 'prod' for production setup."
+     echo "Usage: ${0} [dev|prod]"
+     echo " "
+     echo "Options:"
+     echo "  dev, development  - Setup development environment (default)"
+     echo "  prod, production  - Setup production environment with Docker"
+     echo "  help, -h, --help  - Show this help message"
+     ;;
+     *)
+         print_error "Unknown option: $1"
+            echo "Use '$0 help' for usage information"
+            exit 1
+            ;;
  esac   
 }
 
