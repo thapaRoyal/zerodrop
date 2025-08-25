@@ -44,3 +44,18 @@ clean:
 	rm -rf frontend/.next
 	rm -rf frontend/node_modules
 	rm -rf backend/bin
+
+# Production setup
+setup-production:
+	@echo "Setting up production environment..."
+	cp env.example .env
+	@echo "Please edit .env file with your configuration"
+
+# Development setup
+setup-dev:
+	@echo "Setting up development environment..."
+	make install-frontend
+	make install-backend
+	@echo "Development environment ready!"
+	@echo "Run 'make dev-frontend' in one terminal"
+	@echo "Run 'make dev-backend' in another terminal"
